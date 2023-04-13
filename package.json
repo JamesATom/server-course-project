@@ -1,0 +1,7 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "./src/index.js",
+  "author": "Nodir",
+  "license": "MIT"
+}
