@@ -5,8 +5,7 @@ const http = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
 require('dotenv').config();
-
-const apiRouter = require('../routes/apiRoutes');
+const apiRouter = require('./routes/apiRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -15,12 +14,10 @@ const io = new Server(server, {
     cors: 'http://localhost:3000'
 });
 
-
-
 app.use(cors());
 app.use(express.json());
+app.use('/apiKeys', apiRouter);
 
-app.route('/api-keys', apiRouter);
 
 
 

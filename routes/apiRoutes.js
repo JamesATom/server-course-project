@@ -1,6 +1,7 @@
 const express = require('express');
 
 const apiRouter = express.Router();
+console.log('what a hell', process.env.LOCIZE_API_KEY);
 
 apiRouter.get('/', (req, res) => {
     console.log('what is going on');
