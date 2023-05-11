@@ -16,7 +16,7 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
-    cors: 'https://client-course-project.vercel.app/'
+    cors: '*'
 });
 
 app.use(cors());
