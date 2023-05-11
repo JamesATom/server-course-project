@@ -1,14 +1,14 @@
 // import { v2 as cloudinary } from 'cloudinary';
 const express = require('express');
-const session = require('express-session');    
+// const session = require('express-session');    
 const http = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
 require('dotenv').config();
-const db = require('./models');
+// const db = require('./models');
 const apiRouter = require('./routes/apiRoutes');
-const passport = require('passport');
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
+// const passport = require('passport');
+// const GoogleStrategy = require('passport-google-oauth20').Strategy;
 // const TwitterStrategy = require('passport-twitter').Strategy;
 // const GitHubStrategy = require('passport-github').Strategy;
 
@@ -35,44 +35,44 @@ app.use('/apiKeys', apiRouter);
 //     },
 // }));
 
-app.use(passport.initialize())
-app.use(passport.session())
+// app.use(passport.initialize())
+// app.use(passport.session())
 
-passport.serializeUser((user, done) => {
-    return done(null, user);
+// passport.serializeUser((user, done) => {
+//     return done(null, user);
+// });
+
+// passport.deserializeUser((user, done) => {
+//     return done(null, user);
+// });
+
+// passport.use(new GoogleStrategy({
+//     clientID: process.env.GOOGLE_CLIENT_ID,
+//     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+//     callbackURL: '/oauth2/redirect/google',
+//     scope: [ 'profile' ],
+//     state: true
+//   },
+//   function verify(accessToken, refreshToken, profile, cb) {
+//     console.log('Profile: ', profile);
+//     cb(null, profile)
+//   }
+// ));
+
+// app.get('/login/google', passport.authenticate('google'));
+
+// app.get('/oauth2/redirect/google',
+//   passport.authenticate('google', { failureRedirect: '/login', failureMessage: true }),
+//   function(req, res) {
+//     res.redirect('/');
+// });
+
+// db.sequelize.sync().then(() => {
+    
+// });
+server.listen(process.env.PORT, () => {
+    console.log(`Listening on PORT: ${process.env.PORT}`);
 });
-
-passport.deserializeUser((user, done) => {
-    return done(null, user);
-});
-
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: '/oauth2/redirect/google',
-    scope: [ 'profile' ],
-    state: true
-  },
-  function verify(accessToken, refreshToken, profile, cb) {
-    console.log('Profile: ', profile);
-    cb(null, profile)
-  }
-));
-
-app.get('/login/google', passport.authenticate('google'));
-
-app.get('/oauth2/redirect/google',
-  passport.authenticate('google', { failureRedirect: '/login', failureMessage: true }),
-  function(req, res) {
-    res.redirect('/');
-});
-
-db.sequelize.sync().then(() => {
-    server.listen(process.env.PORT, () => {
-        console.log(`Listening on PORT: ${process.env.PORT}`);
-    });
-});
-
 
 
 
