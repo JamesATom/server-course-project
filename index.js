@@ -16,23 +16,24 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
-    cors: '*'
+    cors: '*',
+    method: '*'
 });
 
 app.use(cors());
 app.use(express.json());
 app.use('/apiKeys', apiRouter);
 
-app.use(session({
-    secret: 'sthjustlikethis',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { 
-        maxAge: 172800000, 
-        secure: true, 
-        sameSite: 'none' 
-    },
-}));
+// app.use(session({
+//     secret: 'sthjustlikethis',
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: { 
+//         maxAge: 172800000, 
+//         secure: true, 
+//         sameSite: 'none' 
+//     },
+// }));
 
 app.use(passport.initialize())
 app.use(passport.session())
