@@ -1,9 +1,9 @@
 // import { v2 as cloudinary } from 'cloudinary';
 const express = require('express');
 // const session = require('express-session');    
-const http = require('http');
+// const http = require('http');
 const cors = require('cors');
-const { Server } = require('socket.io');
+// const { Server } = require('socket.io');
 require('dotenv').config();
 // const db = require('./models');
 const apiRouter = require('./routes/apiRoutes');
@@ -13,11 +13,10 @@ const apiRouter = require('./routes/apiRoutes');
 // const GitHubStrategy = require('passport-github').Strategy;
 
 const app = express();
-const server = http.createServer(app);
+// const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: '*',
-    method: '*'
 });
 
 app.use(cors());
@@ -70,7 +69,7 @@ app.use('/apiKeys', apiRouter);
 // db.sequelize.sync().then(() => {
     
 // });
-server.listen(process.env.PORT, () => {
+app.listen(process.env.PORT, () => {
     console.log(`Listening on PORT: ${process.env.PORT}`);
 });
 
