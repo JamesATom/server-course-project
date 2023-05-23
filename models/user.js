@@ -1,28 +1,31 @@
-module.exports = (Sequelize, DataTypes) => {
-
-    const users = Sequelize.define('users', {
+module.exports = (sequelize, DataTypes) => {
+    const User = sequelize.define('User', {
         id: {
-            type: DataTypes.INTEGER,
-            autoIncrement: true,
-            primaryKey: true,
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
+            primaryKey: true
         },
         name: {
             type: DataTypes.STRING,
             allowNull: false,
         },
+        lastname: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
         email: {
             type: DataTypes.STRING,
             unique: true,
-            allowNull:false
+            allowNull: false
         },
         password: {
             type: DataTypes.STRING,
-            allowNull:false
+            allowNull: false
         },
-        role: {
-            type: DataTypes.STRING,
-            defaultValue: 'USER'
-        },
+        isAdmin: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
+        }
     });
 
     // User.associate = ((models) => {
@@ -41,5 +44,5 @@ module.exports = (Sequelize, DataTypes) => {
     //     User.belongsTo(models.SocialNetwork);
     // });
 
-    return users;    
+    return User;    
 }
