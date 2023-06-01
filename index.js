@@ -5,6 +5,8 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 require('dotenv').config();
 const db = require('./models');
+const { User } = require('./models');
+const getGitHubUserEmail = require('./src/utils/getGitHubEmail');
 
 const apiRouter = require('./routes/apiRoutes');
 const loginRouter = require('./routes/loginRoutes');
@@ -12,11 +14,12 @@ const registerRouter = require('./routes/registerRoutes');
 
 const session = require('express-session');   
 const passport = require('passport');
-const store = new session.MemoryStore();
+
+
 // const LocalStrategy = require("passport-local").Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const TwitterStrategy = require('passport-twitter').Strategy;
-const GitHubStrategy = require('passport-github2').Strategy;
+const GitHubStrategy = require('passport-github').Strategy;
 
 const app = express();
 const server = http.createServer(app);
@@ -37,19 +40,15 @@ app.use('/apiKeys', apiRouter);
 app.use('/login', loginRouter);
 app.use('/register', registerRouter);
 
-app.use(
-    session({
-        secret: "secretcode",
-        resave: false,
-        saveUninitialized: false,
-        store,
-        cookie: {
-            sameSite: "none",
-            secure: false,
-            maxAge: 1000 * 60 * 60 * 24
-        }
-    })
-);
+app.use(session({ 
+    secret: 'secretcode', 
+    resave: false,
+    saveUninitialized: false,
+    cookie: { 
+        secure: false,
+        maxAge: 1000 * 60 * 60 * 24,
+    }
+}));
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -77,13 +76,15 @@ passport.use(new GoogleStrategy({
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: '/auth/google/callback'
     },
+        function verify(accessToken, refreshToken, profile, cb) {
+            // const [user, created] = User.findOrCreated({ where: { }});
+            console.log('Google: ', profile);
+            cb(null, profile);
+        }
+    )
+);
 
-    function verify(accessToken, refreshToken, profile, cb) {
-        cb(null, profile)
-    }
-));
-
-app.get('/auth/google', passport.authenticate('google', { scope: ['profile'] }));
+app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 app.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/login', failureMessage: true }), 
     (req, res) => { res.redirect('http://localhost:3000/'); });
@@ -92,10 +93,11 @@ app.get('/auth/google/callback', passport.authenticate('google', { failureRedire
 passport.use(new TwitterStrategy({
         consumerKey: process.env.TWITTER_CONSUMER_KEY,
         consumerSecret: process.env.TWITTER_CONSUMER_SECRET,
-        callbackURL: "http://localhost:8000/auth/twitter/callback"
+        callbackURL: "http://localhost:8000/auth/twitter/callback",
+        includeEmail: true
     },
         function(token, tokenSecret, profile, cb) {
-            console.log('what is up');
+            console.log('Twitter: ', profile);
             cb(null, profile);
         }
     )
@@ -107,29 +109,31 @@ app.get('/auth/twitter/callback', passport.authenticate('twitter', { failureRedi
     (req, res) => { res.redirect('http://localhost:3000/'); });
 
 
-// passport.use(new GitHubStrategy({
-//         clientID: process.env.GITHUB_CLIENT_ID,
-//         clientSecret: process.env.GITHUB_CLIENT_SECRET,
-//         callbackURL: "/auth/github/callback"
-//     },
-//     function(accessToken, refreshToken, profile, done) {
-        
-//         }
-//     )
-// );
+passport.use(new GitHubStrategy({
+        clientID: process.env.GITHUB_CLIENT_ID,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET,
+        callbackURL: "http://127.0.0.1:8000/auth/github/callback",
+    },
+        async function(accessToken, refreshToken, profile, cb) {
+            await getGitHubUserEmail(accessToken, profile);
+            cb(null, profile);
+        }
+    )
+);
 
-// app.get('/auth/github', passport.authenticate('github', { scope: [ 'user:email' ] }));
+app.get('/auth/github', passport.authenticate('github', { scope: ['user', 'user:email'] }));
 
-// app.get('/auth/github/callback', passport.authenticate('github', { failureRedirect: '/login' }),
-//     (req, res) => { res.redirect('http://localhost:3000/'); });
+app.get('/auth/github/callback', passport.authenticate('github', { failureRedirect: '/login' }),
+    (req, res) => { res.redirect('http://localhost:3000/'); });
 
-app.get('user', (req, res) => {
+
+app.get('/user', (req, res) => {
     res.send(req.user);
 });
 
 // db.sequelize.drop();
 
-db.sequelize.sync({ alter: false }).then(() => {
+db.sequelize.sync({ alter: true }).then(() => {
     app.listen(process.env.PORT, () => {
         console.log(`Listening on PORT: ${process.env.PORT}`);
     });        

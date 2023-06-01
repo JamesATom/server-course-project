@@ -25,7 +25,15 @@ module.exports = (sequelize, DataTypes) => {
         isAdmin: {
             type: DataTypes.BOOLEAN,
             defaultValue: false
+        },
+        deletedOrNot: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
         }
+    });
+
+    User.associate = ((models) => {
+        User.hasOne(models.SocialAccount);
     });
 
     // User.associate = ((models) => {
