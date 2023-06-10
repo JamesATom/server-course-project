@@ -5,8 +5,9 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 require('dotenv').config();
 const db = require('./models');
-const { User } = require('./models');
+const { User, SocialAccount } = require('./models');
 const getGitHubUserEmail = require('./src/utils/getGitHubEmail');
+const getSocialMediaEmail = require('./src/utils/getSocialMediaEmail');
 
 const apiRouter = require('./routes/apiRoutes');
 const loginRouter = require('./routes/loginRoutes');
@@ -31,7 +32,7 @@ const io = new Server(server, {
 app.use(express.json());
 app.use(cors(
     {
-        origin: 'http://localhost:3000', 
+        origin: 'http://localhost:3000',
         credentials: true
     }
 ));
@@ -76,9 +77,17 @@ passport.use(new GoogleStrategy({
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: '/auth/google/callback'
     },
-        function verify(accessToken, refreshToken, profile, cb) {
-            // const [user, created] = User.findOrCreated({ where: { }});
-            console.log('Google: ', profile);
+        async function verify(accessToken, refreshToken, profile, cb) {
+            const email = getSocialMediaEmail(profile);
+            if (email) {
+                const [user, created] = await SocialAccount.findOrCreate({ 
+                    where: {
+                        googleEmail: email 
+                    }, 
+                    defaults: { googleEmail: email }
+                });
+            }
+            
             cb(null, profile);
         }
     )
@@ -96,8 +105,16 @@ passport.use(new TwitterStrategy({
         callbackURL: "http://localhost:8000/auth/twitter/callback",
         includeEmail: true
     },
-        function(token, tokenSecret, profile, cb) {
-            console.log('Twitter: ', profile);
+        async function(token, tokenSecret, profile, cb) {
+            const email = getSocialMediaEmail(profile);
+            if (email) {
+                const [user, created] = await SocialAccount.findOrCreate({ 
+                    where: {
+                        googleEmail: email 
+                    }, 
+                    defaults: { googleEmail: email }
+                });
+            }
             cb(null, profile);
         }
     )
@@ -116,6 +133,15 @@ passport.use(new GitHubStrategy({
     },
         async function(accessToken, refreshToken, profile, cb) {
             await getGitHubUserEmail(accessToken, profile);
+            const email = getSocialMediaEmail(profile);
+            if (email) {
+                const [user, created] = await SocialAccount.findOrCreate({ 
+                    where: {
+                        googleEmail: email 
+                    }, 
+                    defaults: { googleEmail: email }
+                });
+            }
             cb(null, profile);
         }
     )

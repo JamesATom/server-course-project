@@ -33,7 +33,10 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     User.associate = ((models) => {
-        User.hasOne(models.SocialAccount);
+        User.hasOne(models.SocialAccount, {
+            type: DataTypes.UUID,
+            allowNull: true
+        });
     });
 
     // User.associate = ((models) => {
